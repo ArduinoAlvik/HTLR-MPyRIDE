@@ -67,8 +67,11 @@ const T = i18next.t.bind(i18next)
 
 let editor, term, port
 let editorFn = ''
+let collapsedDirs = {};
 let isInRunMode = false
 let devInfo = null
+let currentFsTree = []
+let currentFsStats = []
 
 async function disconnectDevice() {
     if (port) {
@@ -394,12 +397,24 @@ function _updateFileTree(fs_tree, fs_stats)
         const offset = '&emsp;'.repeat(depth)
         for (const n of sorted(node)) {
             if ('content' in n) {
+                if (collapsedDirs[n.path] === undefined) {
+                    collapsedDirs[n.path] = true;
+                }
+                else if (!(n.path in collapsedDirs)) {
+                    collapsedDirs[n.path] = (n.path !== '/');
+                }
+
+                const isCollapsed = collapsedDirs[n.path];
+                const icon = isCollapsed ? '▶' : '▼';
+
                 fileTree.insertAdjacentHTML('beforeend', `<div>
-                    ${offset}<span class="folder name"><i class="fa-solid fa-folder fa-fw"></i> ${n.name}</span>
+                    ${offset}<span class="folder name" onclick="app.toggleFolder('${n.path}')">${icon} <i class="fa-solid fa-folder fa-fw"></i> ${n.name}</span>
                     <a href="#" class="menu-action" title="Remove" onclick="app.removeDir('${n.path}');return false;"><i class="fa-solid fa-xmark fa-fw"></i></a>
                     <a href="#" class="menu-action" title="Create" onclick="app.createNewFile('${n.path}/');return false;"><i class="fa-solid fa-plus fa-fw"></i></a>
                 </div>`)
-                traverse(n.content, depth+1)
+                if (!isCollapsed) {
+                    traverse(n.content, depth+1)
+                }
             } else {
                 /* TODO ••• */
                 let icon;
@@ -456,8 +471,13 @@ async function _raw_updateFileTree(raw) {
     }
 
     const fs_tree = await raw.walkFs()
-
+    currentFsTree = fs_tree;
+    currentFsStats = fs_stats;
     _updateFileTree(fs_tree, fs_stats);
+}
+
+function rerenderFileTree() {
+    _updateFileTree(currentFsTree, currentFsStats)
 }
 
 export function fileTreeSelect(fn) {
@@ -1241,6 +1261,21 @@ async function checkForUpdates() {
 export function updateApp() {
     window.location.reload()
 }
+
+export function toggleFolder(path) {
+    collapsedDirs[path] = !collapsedDirs[path];
+
+    // Nur neu rendern, wenn der FileTree schon geladen wurde
+    if (currentFsTree.length > 0) {
+        rerenderFileTree();
+    } else {
+        refreshFileTree();  // Erstes Mal: lade vom Gerät
+    }
+}
+
+window.app = window.app || {};
+window.app.toggleFolder = toggleFolder;
+
 
 window.addEventListener('visibilitychange', function () {
     if (document.visibilityState === 'visible') {

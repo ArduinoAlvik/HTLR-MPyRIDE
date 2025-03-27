@@ -2,10 +2,24 @@
 
 import os, time
 import json, glob, tarfile, requests
+import shutil
 from io import BytesIO
 from zipfile import ZipFile
 from os import remove as rm, system, path, makedirs
 from shutil import copyfile as cp, copytree, rmtree
+
+import platform
+
+os_name = platform.system()
+if os_name == 'Windows':
+    print("Läuft auf Windows")
+    remove = "del /q"
+elif os_name == 'Linux':
+    print("Läuft auf Linux")
+    remove = "rm"
+else:
+    print(f"Läuft auf {os_name}")
+    remove = "rm"
 
 def run(cmd):
     if system(cmd) != 0:
@@ -107,14 +121,19 @@ if __name__ == "__main__":
 
     # Cleanup
     #run("rm build/translations.json")
-    run("rm build/app.css   build/viper_lib.css")
-    run("rm build/app.js    build/viper_lib.js")
+    run(f"{remove} build{os.sep}app.css build{os.sep}viper_lib.css")
+    run(f"{remove} build{os.sep}app.js build{os.sep}viper_lib.js")
+
 
     # Add assets from packages
     cp("node_modules/@micropython/micropython-webassembly-pyscript/micropython.wasm", "./build/assets/micropython.wasm")
     cp("node_modules/@micropython/micropython-webassembly-pyscript/micropython.mjs", "./build/micropython.mjs")
     cp("node_modules/@pybricks/mpy-cross-v6/build/mpy-cross-v6.wasm", "./build/assets/mpy-cross-v6.wasm")
     cp("node_modules/@astral-sh/ruff-wasm-web/ruff_wasm_bg.wasm", "./build/assets/ruff_wasm_bg.wasm")
+
+    # shutil.rmtree("./build/HTLViperIDE")
+
+    run('pyinstaller --onefile --name HTLViperIDE --icon=assets/htl_icon.ico --add-data "build;build" --distpath ./dist setup.py')
 
     print()
     print("Build complete.")

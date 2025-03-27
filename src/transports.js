@@ -127,7 +127,7 @@ export class Transport {
         throw new Error('Timeout')
     }
 
-    async readUntil(ending, timeout=5000) {
+    async readUntil(ending, timeout=10000) {
         if (!this.inTransaction) {
             throw new Error('Not in transaction')
         }
@@ -145,7 +145,7 @@ export class Transport {
                 endTime = Date.now() + timeout
             }
         }
-        throw new Error('Timeout reached before finding the ending sequence')
+        throw new Error(`Timeout reached before finding the ending sequence: "${ending}"`)
     }
 }
 

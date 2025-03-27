@@ -71,9 +71,9 @@ class BLEUARTStream(io.IOBase):
             schedule_in(self._flush, 30)
 
 
-def start():
+def start(name="mpy-repl"):
     ble = bluetooth.BLE()
-    uart = ble_nus.BLEUART(ble, name="mpy-repl")
+    uart = ble_nus.BLEUART(ble, name)
     stream = BLEUARTStream(uart)
 
     os.dupterm(stream)
