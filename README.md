@@ -1,48 +1,65 @@
-# ViperIDE
+# HTLR-MPyRIDE
 
-<!--[![StandWithUkraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/StandWithUkraine.svg)](https://github.com/vshymanskyy/StandWithUkraine/blob/main/docs/README.md) -->
-[![GitHub Repo stars](https://img.shields.io/github/stars/vshymanskyy/ViperIDE?style=flat-square&color=green)](https://github.com/vshymanskyy/ViperIDE/stargazers) 
-[![GitHub issues](https://img.shields.io/github/issues-raw/vshymanskyy/ViperIDE?style=flat-square&label=issues&color=green)](https://github.com/vshymanskyy/ViperIDE/issues) 
-[![Build status](https://img.shields.io/github/actions/workflow/status/vshymanskyy/ViperIDE/static.yml?branch=main&style=flat-square&logo=github&label=build)](https://github.com/vshymanskyy/ViperIDE/actions) 
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/vshymanskyy/ViperIDE) 
-[![Support vshymanskyy](https://img.shields.io/static/v1?label=support&message=%E2%9D%A4&color=%23fe8e86)](https://quicknote.io/da0a7d50-bb49-11ec-936a-6d7fd5a2de08) 
+[![GitHub Repo stars](https://img.shields.io/github/stars/vshymanskyy/ViperIDE?style=flat-square&color=green)](https://github.com/vshymanskyy/ViperIDE/stargazers)  
+[![GitHub issues](https://img.shields.io/github/issues-raw/vshymanskyy/ViperIDE?style=flat-square&label=issues&color=green)](https://github.com/vshymanskyy/ViperIDE/issues)  
+[![Build status](https://img.shields.io/github/actions/workflow/status/vshymanskyy/ViperIDE/static.yml?branch=main&style=flat-square&logo=github&label=build)](https://github.com/vshymanskyy/ViperIDE/actions)  
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/vshymanskyy/ViperIDE)  
 
-**An innovative [MicroPython](https://micropython.org) / [CircuitPython](https://circuitpython.org) IDE for Web and Mobile**
+**HTLR-MPyRIDE** (*HTL Rankweil - MicroPython Remote IDE*) ist eine angepasste und erweiterte Version der [**ViperIDE**](https://github.com/vshymanskyy/ViperIDE), optimiert für den Einsatz an der [**HTL Rankweil**](https://www.htl-rankweil.at/) speziell für den [**Arduino Alvik**](https://www.arduino.cc/education/arduino-alvik/) im Rahmen des MicroPython-Unterrichts.
 
-[![image](docs/images/visual-main.png)](https://viper-ide.org)
+Das Ziel dieser Fork-Version ist es, eine browserbasierte **Remote-IDE für MicroPython** bereitzustellen, die nahtlos mit Microcontrollern wie dem **ESP32** zusammenarbeitet – sowohl lokal als auch über das Netzwerk. Zusätzlich wurden Features für den schulischen Einsatz ergänzt und angepasst.
 
-## Features
+|                                |   |
+|--------------------------------|---|
+| [![image](assets/htl_logo.svg)](https://www.htl-rankweil.at/) | [![image](docs/images/visual-main.png)](https://viper-ide.org) |
 
-- **Lightweight and Accessible**
-  - Runs entirely in your browser - no installation required
-  - Works **offline** on both PC and smartphone
-- **Flexible Connectivity**
-  - Direct USB connection
-  - Wireless/remote options available
-- **Powerful Python Development**
-  - Real-time code analysis: Spot errors and warnings instantly
-  - Integrated Terminal/REPL for interactive coding
-  - Basic code completion
-  - MicroPython Virtual Machine for experimentation
-- **Built-in Management Tools**
-  - File explorer and editor
-  - Package management system
-- ... read more about [features and device support](./docs/Features.md)
+## 🔧 Features
 
-## Links
+- **Keine Installation notwendig**
+  - Läuft vollständig im Browser (auch auf Smartphones oder Tablets)
+  - Unterstützt Offline-Nutzung
+- **Flexible Verbindungsmöglichkeiten**
+  - Serielle Verbindung via USB
+  - Remote-Verbindung über Netzwerk/WebSocket (z. B. zu einem ESP32)
+- **MicroPython-Entwicklung**
+  - Syntax-Highlighting & Echtzeit-Codeanalyse
+  - REPL/Terminal-Integration
+  - Grundlegende Autovervollständigung
+  - Integration einer MicroPython-VM zu Testzwecken
+- **Projekt- & Dateimanagement**
+  - Integrierter Datei-Explorer
+  - Hochladen, Bearbeiten und Löschen von Dateien
+  - Unterstützung für `.mpy`-Kompilierung und Minifizierung
 
-[ViperIDE Online ](https://viper-ide.org)  
-[Feedback](./docs/Feedback.md)  
-[Documentation](./docs/)  
-[Discussion](https://github.com/orgs/micropython/discussions/15219)  
 
-## Used software
+## 📎 Ursprung & Danksagung
 
-- [CodeMirror](https://codemirror.net) - Main code editor, MIT
-- [Ruff](https://docs.astral.sh/ruff) - Python linter and formatter, MIT
-- [Xterm.js](https://xtermjs.org) - REPL Terminal, MIT
-- [PeerJS](https://peerjs.com) - P2P/WebRTC connections, MIT
-- [MicroPython](https://github.com/micropython/micropython) - Virtual Machine, MIT
-- [mpy-cross](https://github.com/micropython/micropython/tree/master/mpy-cross) - Code validation, MIT
-- [mpy-tool](https://github.com/micropython/micropython/blob/master/tools/mpy-tool.py) - MPY bytecode disassembler - MIT
-- [python-minifier](https://github.com/dflook/python-minifier) - Code minifier, MIT
+Diese IDE basiert auf dem hervorragenden Projekt [**ViperIDE von vshymanskyy**](https://github.com/vshymanskyy/ViperIDE), welches unter der MIT-Lizenz veröffentlicht wurde.  
+Ein besonderer Dank gilt dem ursprünglichen Autor für die solide Grundlage und die offene Lizenzierung.
+
+## 📚 Links
+
+- [Originalprojekt – ViperIDE](https://github.com/vshymanskyy/ViperIDE)  
+- [Feature-Übersicht](./docs/Features.md)  
+- [Feedback & Ideen](./docs/Feedback.md)  
+- [Dokumentation](./docs/)  
+- [MicroPython Discussions](https://github.com/orgs/micropython/discussions/15219)
+- [Arduino Alvik](https://www.arduino.cc/education/arduino-alvik/)
+- [HTL Rankweil](https://www.htl-rankweil.at/)
+
+## 🧰 Eingesetzte Software
+
+- [CodeMirror](https://codemirror.net) – Code-Editor (MIT)
+- [Ruff](https://docs.astral.sh/ruff) – Linter & Formatter (MIT)
+- [Xterm.js](https://xtermjs.org) – Terminal/REPL (MIT)
+- [PeerJS](https://peerjs.com) – P2P/WebRTC-Kommunikation (MIT)
+- [MicroPython](https://github.com/micropython/micropython) – VM (MIT)
+- [mpy-cross](https://github.com/micropython/micropython/tree/master/mpy-cross) – Bytecode-Compiler (MIT)
+- [mpy-tool](https://github.com/micropython/micropython/blob/master/tools/mpy-tool.py) – Bytecode-Disassembler (MIT)
+- [python-minifier](https://github.com/dflook/python-minifier) – Code-Minifier (MIT)
+
+---
+
+Wenn du willst, kann ich dir auch noch:
+- die `index.html` für einen passenden **Tab-Titel + Favicon**
+- oder eine minimal angepasste **Startseite** (Titel, Logo, Willkommenszeile) erstellen. Sag einfach Bescheid!

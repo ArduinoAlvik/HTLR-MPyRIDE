@@ -133,7 +133,7 @@ if __name__ == "__main__":
 
     # shutil.rmtree("./build/HTLViperIDE")
 
-    run('pyinstaller --onefile --name HTLViperIDE --icon=assets/htl_icon.ico --add-data "build;build" --distpath ./dist setup.py')
+    run('pyinstaller --onefile --name HTLR-MPyRIDE --icon=assets/htl_icon.ico --add-data "build;build" --distpath ./dist setup.py')
 
     print()
     print("Build complete.")
