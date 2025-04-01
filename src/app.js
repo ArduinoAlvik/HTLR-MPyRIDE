@@ -55,6 +55,9 @@ library.add(faLink, faBars, faDownload, faCirclePlay, faCircleStop, faFolder, fa
 library.add(faMessage, faCircleDown)
 dom.watch()
 
+const app = window.app = window.app || {};
+
+
 function getBuildDate() {
     return (new Date(VIPER_IDE_BUILD)).toISOString().substring(0, 19).replace('T',' ')
 }
@@ -81,6 +84,7 @@ async function disconnectDevice() {
             console.log(err)
         }
         port = null
+        app.setStatus("Disconnected")
     }
 
     for (const t of ['ws', 'ble', 'usb']) {
@@ -94,6 +98,7 @@ let defaultWsPass = ''
 async function prepareNewPort(type) {
     let new_port;
     analytics.track('Device Start Connection', { connection: type })
+    app.setStatus('Connecting...')
 
     if (type === 'ws') {
         let url
@@ -201,6 +206,7 @@ async function prepareNewPort(type) {
 export async function connectDevice(type) {
     if (port) {
         if (!confirm('Disconnect current device?')) { return }
+        app.setStatus("Disconnecting...")
         await disconnectDevice()
         return
     }
@@ -247,6 +253,7 @@ export async function connectDevice(type) {
             toastr.success(sanitizeHTML(devInfo.machine + '\n' + devInfo.version), 'Device connected')
             analytics.track('Device Connected', devInfo)
             console.log('Device info', devInfo)
+            app.setStatus('Connected')
 
             if (window.pkg_install_url) {
                 await _raw_installPkg(raw, window.pkg_install_url)
@@ -285,6 +292,7 @@ export async function connectDevice(type) {
     } else {
         toastr.success('Device connected')
         analytics.track('Device Connected')
+        app.setStatus('Connected')
     }
 }
 
@@ -610,10 +618,13 @@ export async function saveCurrentFile() {
     if (!port) return;
     if (!editor) return;
 
+
     if (editor.state.readOnly) {
         toastr.warning("File is read only")
         return
     }
+
+    app.setStatus(`Saving File: ${editorFn}`)
 
     if (editorFn == "Untitled") {
         const fn = prompt(`Creating new file inside / \nPlease enter the name:`)
@@ -649,6 +660,7 @@ export async function saveCurrentFile() {
     // Success
     analytics.track('File Saved')
     toastr.success('File Saved')
+    app.setStatus('File Saved')
 
     document.dispatchEvent(new CustomEvent("fileSaved", {detail: {fn: editorFn}}))
     const fileElement = QS(`#menu-file-tree [data-fn="${editorFn}"]`)
@@ -664,6 +676,7 @@ export function clearTerminal() {
 export async function reboot(mode = 'hard') {
     if (!port) return;
 
+    app.setStatus(`Reboot: ${mode}`)
     const release = await port.startTransaction()
     try {
         if (mode === 'soft') {
@@ -692,6 +705,8 @@ export async function runCurrentFile() {
     }
 
     term.write('\r\n')
+
+    app.setStatus(`Running file: ${editorFn}`)
 
     const soft_reboot = false
     const timeout = -1
@@ -726,6 +741,7 @@ export async function runCurrentFile() {
     }
     // Success
     analytics.track('Script Run')
+    app.setStatus('Script Run')
 }
 
 /*
@@ -953,6 +969,16 @@ export async function showBatteryState() {
     }
 }
 
+
+
+app.setStatus = function (text) {
+    const status = document.getElementById('status-ide-state');
+    if (status) {
+        status.textContent = text;
+    }
+};
+
+
 export function applyTranslation() {
     try {
         // sanity check
@@ -1100,6 +1126,7 @@ export function applyTranslation() {
 
         idleMonitor.setIdleCallback(() => {
             analytics.track('User Idle')
+            app.setStatus('Idle')
         })
 
         idleMonitor.setActiveCallback(() => {
@@ -1315,6 +1342,8 @@ export function updateApp() {
 export function toggleFolder(path) {
     collapsedDirs[path] = !collapsedDirs[path];
 
+    app.setStatus(`Opening Foler: ${path}`)
+
     // Nur neu rendern, wenn der FileTree schon geladen wurde
     if (currentFsTree.length > 0) {
         rerenderFileTree();
@@ -1323,7 +1352,6 @@ export function toggleFolder(path) {
     }
 }
 
-window.app = window.app || {};
 window.app.toggleFolder = toggleFolder;
 
 // window.addEventListener("beforeunload", function () {
