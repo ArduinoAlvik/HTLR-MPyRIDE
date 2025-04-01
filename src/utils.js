@@ -110,6 +110,7 @@ export class IdleMonitor {
         window.addEventListener('click', this.handleActivity);
         window.addEventListener('touchstart', this.handleActivity);
         window.addEventListener('touchmove', this.handleActivity);
+
     }
 
     removeEventListeners() {
@@ -289,4 +290,3 @@ window.addEventListener('unhandledrejection', (ev) => {
     report("Error", new Error(ev.reason))
     ev.preventDefault()
 });
-

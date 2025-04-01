@@ -43,7 +43,7 @@ import { faUsb, faBluetoothB } from '@fortawesome/free-brands-svg-icons'
 import { faLink, faBars, faDownload, faCirclePlay, faCircleStop, faFolder, faFile, faFileCircleExclamation, faCubes, faGear,
          faCube, faTools, faSliders, faCircleInfo, faStar, faExpand, faCertificate,
          faPlug, faArrowUpRightFromSquare, faTerminal, faBug, faGaugeHigh,
-         faTrashCan, faArrowsRotate, faPowerOff, faPlus, faXmark
+         faTrashCan, faArrowsRotate, faPowerOff, faPlus, faXmark, faBolt, faBatteryEmpty, faBatteryQuarter, faBatteryHalf, faBatteryThreeQuarters, faBatteryFull
        } from '@fortawesome/free-solid-svg-icons'
 import { faMessage, faCircleDown } from '@fortawesome/free-regular-svg-icons'
 
@@ -51,7 +51,7 @@ library.add(faUsb, faBluetoothB)
 library.add(faLink, faBars, faDownload, faCirclePlay, faCircleStop, faFolder, faFile, faFileCircleExclamation, faCubes, faGear,
          faCube, faTools, faSliders, faCircleInfo, faStar, faExpand, faCertificate,
          faPlug, faArrowUpRightFromSquare, faTerminal, faBug, faGaugeHigh,
-         faTrashCan, faArrowsRotate, faPowerOff, faPlus, faXmark)
+         faTrashCan, faArrowsRotate, faPowerOff, faPlus, faXmark, faBolt, faBatteryEmpty, faBatteryQuarter, faBatteryHalf, faBatteryThreeQuarters, faBatteryFull)
 library.add(faMessage, faCircleDown)
 dom.watch()
 
@@ -234,6 +234,8 @@ export async function connectDevice(type) {
 
     analytics.track('Device Port Connected', Object.assign({ connection: type }, await port.getInfo()))
 
+    await showBatteryState();
+
     if (QID('interrupt-device').checked) {
         // TODO: detect WDT and disable it temporarily
 
@@ -302,7 +304,7 @@ export async function refreshFileTree() {
 
 export async function createNewFile(path) {
     if (!port) return;
-    const fn = prompt(`Creating new file inside ${path}\nPlease enter the name:`)
+    const fn = prompt(`Creating new file inside ${path}\n    - For directories end name with /\n\nPlease enter the name:`)
     if (fn == null || fn == '') return
     const raw = await MpRawMode.begin(port)
     try {
@@ -447,10 +449,16 @@ function _updateFileTree(fs_tree, fs_stats)
     traverse(fs_tree, 1)
 
     for (let fn of changed_files) {
-        QS(`#menu-file-tree [data-fn="${fn}"]`).classList.add("changed")
+        const fileElement = QS(`#menu-file-tree [data-fn="${fn}"]`)
+        if (fileElement) {
+            fileElement.classList.add('changed')
+        }
     }
     for (let fn of open_files) {
-        QS(`#menu-file-tree [data-fn="${fn}"]`).classList.add("open")
+        const fileElement = QS(`#menu-file-tree [data-fn="${fn}"]`)
+        if (fileElement) {
+            fileElement.classList.add('open')
+        }
     }
 
     if (QID('advanced-mode').checked) {
@@ -586,7 +594,10 @@ async function _loadContent(fn, content, editorElement) {
         document.dispatchEvent(new CustomEvent("editorLoaded", {detail: {editor: editor, fn: fn}}))
         addUpdateHandler(editor, (update) => {
             if (update.docChanged) {
-                QS(`#menu-file-tree [data-fn="${fn}"]`).classList.add("changed")
+                const fileElement = QS(`#menu-file-tree [data-fn="${fn}"]`)
+                if (fileElement) {
+                    fileElement.classList.add('changed')
+                }
             }
         })
 
@@ -605,7 +616,7 @@ export async function saveCurrentFile() {
     }
 
     if (editorFn == "Untitled") {
-        const fn = prompt(`Creating new file inside /\nPlease enter the name:`)
+        const fn = prompt(`Creating new file inside / \nPlease enter the name:`)
         if (fn == null || fn == '') return
         editorFn = fn
         document.dispatchEvent(new CustomEvent("fileRenamed", {detail: {old: "Untitled", new: fn}}))
@@ -640,7 +651,10 @@ export async function saveCurrentFile() {
     toastr.success('File Saved')
 
     document.dispatchEvent(new CustomEvent("fileSaved", {detail: {fn: editorFn}}))
-    QS(`#menu-file-tree [data-fn="${editorFn}"]`).classList.remove("changed")
+    const fileElement = QS(`#menu-file-tree [data-fn="${editorFn}"]`)
+    if (fileElement) {
+        fileElement.classList.remove('changed')
+    }
 }
 
 export function clearTerminal() {
@@ -688,6 +702,10 @@ export async function runCurrentFile() {
         const emit = true
         await sleep(10)
         await raw.exec(editor.state.doc.toString(), timeout, emit)
+        // import module is not working in combination with if __name__ == "__main__":
+        // const moduleName = editorFn.replace(/^\/+/, '').replace(/\.py$/, '').replace(/\//g, '.');
+        // console.log(`Running module ${moduleName}`)
+        // await raw.exec(`import ${moduleName}`, timeout, emit);
     } catch (err) {
         if (err.message.includes('KeyboardInterrupt')) {
             // Interrupted manually
@@ -898,6 +916,40 @@ export function toggleFullScreen(elementId) {
         })
     } else {
         document.exitFullscreen()
+    }
+}
+
+export async function showBatteryState() {
+    if (!port) return;
+    const raw = await MpRawMode.begin(port)
+    try {
+        const [level, charging] = await raw.batteryStatus();
+        const icon = document.getElementById("battery-icon");
+        const percent = document.getElementById("battery-percent");
+        const bolt = document.getElementById("battery-bolt");
+
+        let iconClass = "fa-battery-empty";
+        if (level >= 80) iconClass = "fa-battery-full";
+        else if (level >= 60) iconClass = "fa-battery-three-quarters";
+        else if (level >= 30) iconClass = "fa-battery-half";
+        else if (level >= 10) iconClass = "fa-battery-quarter";
+
+        let color = "limegreen";
+        if (!charging || level <= 20) {
+            color = "crimson";
+        }
+        icon.innerHTML = `<i id="battery-icon" class="fa-solid ${iconClass}" style="color: ${color};"></i>`;
+        percent.textContent = `${level}%`;
+        percent.style.color = color;
+
+        bolt.style.display = charging ? "inline" : "none";
+        bolt.style.color = color;
+    }
+    catch (e) {
+        report("Cannot fetch battery state", e);
+    }
+    finally {
+        await raw.end();
     }
 }
 
@@ -1276,6 +1328,9 @@ export function toggleFolder(path) {
 window.app = window.app || {};
 window.app.toggleFolder = toggleFolder;
 
+// window.addEventListener("beforeunload", function () {
+//     navigator.sendBeacon("/shutdown");
+// });
 
 window.addEventListener('visibilitychange', function () {
     if (document.visibilityState === 'visible') {
@@ -1327,3 +1382,6 @@ function stopDrag() {
     document.documentElement.removeEventListener('mouseup', stopDrag, false)
     document.documentElement.removeEventListener('touchend', stopDrag, false)
 }
+
+
+

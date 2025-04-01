@@ -22,9 +22,9 @@ export { splitPath, sleep, getUserUID,
          sizeFmt, indicateActivity, setupTabs, report } from './utils.js'
 
 import { library, dom } from '@fortawesome/fontawesome-svg-core'
-import { faLink } from '@fortawesome/free-solid-svg-icons'
+import { faLink, faBolt, faBatteryEmpty, faBatteryQuarter, faBatteryHalf, faBatteryThreeQuarters, faBatteryFull } from '@fortawesome/free-solid-svg-icons'
 import { faUsb, faBluetoothB } from '@fortawesome/free-brands-svg-icons'
 
-library.add(faLink, faUsb, faBluetoothB)
+library.add(faLink, faUsb, faBluetoothB, faBolt, faBatteryEmpty, faBatteryQuarter, faBatteryHalf, faBatteryThreeQuarters, faBatteryFull)
 dom.watch()
 

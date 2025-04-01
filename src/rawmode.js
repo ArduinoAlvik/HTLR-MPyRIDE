@@ -347,4 +347,38 @@ if ms:
  p('- Memory use:  \`%s / %s, free: %d%%\`' % (size_fmt(mu), size_fmt(ms), (mf * 100) // ms))
 `)
     }
+    async batteryStatus(){
+        await this.exec(`
+from time import sleep_ms
+from arduino_alvik import ArduinoAlvik
+alvik = ArduinoAlvik()
+alvik.begin()
+charge = None
+charging = None
+for _ in range(5):
+    charge = alvik.get_battery_charge()
+    charging = alvik.is_battery_charging()
+    if charge is not None and charging is not None:
+        break
+    sleep_ms(50)
+print()
+`);
+        const chargeStr = await this.exec("print(alvik.get_battery_charge())");
+        const chargingStr = await this.exec("print(alvik.is_battery_charging())");
+        console.log(`Charge: ${chargeStr}`)
+        console.log(`Is charging: ${chargingStr}`)
+
+        // Versuche die Antwort in eine Zahl zu parsen
+        let charge = parseFloat(chargeStr);
+        const charging = chargingStr.toString().trim().toLowerCase() === "true";
+
+        if (!(!isNaN(charge) && charge >= 0 && charge <= 100))
+        {
+            charge = NaN;
+        }
+
+        return [charge, charging];
+    }
 }
+
+

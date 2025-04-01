@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MIT
  *
  * The software is provided 'as is', without any warranties or guarantees (explicit or implied).
- * This includes no assurances about being fit for any specific purposevent.
+ * This includes no assurances about being fit for any specific purpose.
  */
 
 const cacheName = `viper-${VIPER_IDE_VERSION}`;
@@ -26,7 +26,7 @@ self.addEventListener('install', event => {
   log('Install');
   event.waitUntil((async () => {
     const cache = await caches.open(cacheName);
-    await Promise.all(contentToCache.values().map(resource => {
+    await Promise.all(Array.from(contentToCache).map(resource => {
       return cache.add(new Request(resource, { cache: 'no-store' }));
     }));
     self.skipWaiting();
@@ -54,24 +54,37 @@ function normalizeUrl(s) {
 }
 
 self.addEventListener('fetch', event => {
+  const { request } = event;
+
+  // Bypass for non-GET requests (POST, sendBeacon, etc.)
+  if (request.method !== 'GET') {
+    log(`Bypassing cache for ${request.method} ${request.url}`);
+    event.respondWith(fetch(request));
+    return;
+  }
+
+  // Special bypass for /shutdown
+  if (request.url.includes('/shutdown')) {
+    log('Bypassing cache for /shutdown');
+    event.respondWith(fetch(request));
+    return;
+  }
+
   event.respondWith((async () => {
     const cache = await caches.open(cacheName);
-    const url = normalizeUrl(event.request.url);
-    const r = await cache.match(url);
-    if (r) {
+    const url = normalizeUrl(request.url);
+    const cachedResponse = await cache.match(url);
+    if (cachedResponse) {
       log(`Using cached: ${url}`);
-      return r;
+      return cachedResponse;
     } else {
-      //log(`Loading: ${url}`);
       try {
-        const rsp = await fetch(event.request);
-
+        const response = await fetch(request);
         if (contentToCache.has(url.pathname)) {
           log(`Caching: ${url}`);
-          cache.put(event.request, rsp.clone());
+          cache.put(request, response.clone());
         }
-
-        return rsp;
+        return response;
       } catch (err) {
         log(err.message);
         throw err;
