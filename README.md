@@ -59,9 +59,3 @@ Ein besonderer Dank gilt dem ursprünglichen Autor für die solide Grundlage und
 - [mpy-cross](https://github.com/micropython/micropython/tree/master/mpy-cross) – Bytecode-Compiler (MIT)
 - [mpy-tool](https://github.com/micropython/micropython/blob/master/tools/mpy-tool.py) – Bytecode-Disassembler (MIT)
 - [python-minifier](https://github.com/dflook/python-minifier) – Code-Minifier (MIT)
-
----
-
-Wenn du willst, kann ich dir auch noch:
-- die `index.html` für einen passenden **Tab-Titel + Favicon**
-- oder eine minimal angepasste **Startseite** (Titel, Logo, Willkommenszeile) erstellen. Sag einfach Bescheid!

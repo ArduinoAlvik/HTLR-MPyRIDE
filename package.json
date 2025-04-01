@@ -1,6 +1,6 @@
 {
-  "name": "ViperIDE",
-  "version": "0.5.2",
+  "name": "HTLR-MPyRIDE",
+  "version": "0.5.3",
   "description": "An innovative MicroPython / CircuitPython IDE for Web and Mobile",
   "main": "index.js",
   "scripts": {

@@ -1009,13 +1009,13 @@ export function applyTranslation() {
     }
 
     QSA('a[id=gh-star]').forEach(el => {
-        el.setAttribute('href', 'https://github.com/vshymanskyy/ViperIDE')
+        el.setAttribute('href', 'https://github.com/ArduinoAlvik/HTLR-MPyRIDE')
         el.setAttribute('target', '_blank')
         el.classList.add('link')
     })
 
     QSA('a[id=gh-issues]').forEach(el => {
-        el.setAttribute('href', 'https://github.com/vshymanskyy/ViperIDE/issues')
+        el.setAttribute('href', 'https://github.com/ArduinoAlvik/HTLR-MPyRIDE/issues')
         el.setAttribute('target', '_blank')
         el.classList.add('link')
     })
@@ -1130,13 +1130,11 @@ export function applyTranslation() {
 
     const fn = 'test.py'
     const content = `
-# ViperIDE - MicroPython Web IDE
-# Read more: https://github.com/vshymanskyy/ViperIDE
+# HTLR-MPyRIDE – HTL Rankweil - MicroPython Remote IDE
+# Repo: https://github.com/ArduinoAlvik/HTLR-MPyRIDE
+# Forked from: https://github.com/vshymanskyy/ViperIDE
 
-# Connect your device and start creating! 🤖👨‍💻🕹️
-
-# You can also open a virtual device and explore some examples:
-# https://viper-ide.org?vm=1
+# Verbinde dein Gerät und programmiere direkt im Browser! 🤖💻📡
 `
     await _loadContent(fn, content, createTab(fn))
 
