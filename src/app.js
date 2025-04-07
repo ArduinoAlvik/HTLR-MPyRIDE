@@ -939,6 +939,7 @@ export async function showBatteryState() {
     if (!port) return;
     const raw = await MpRawMode.begin(port)
     try {
+        app.setStatus('Getting battery state...')
         const [level, charging] = await raw.batteryStatus();
         const icon = document.getElementById("battery-icon");
         const percent = document.getElementById("battery-percent");
