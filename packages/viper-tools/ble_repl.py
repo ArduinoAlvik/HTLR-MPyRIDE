@@ -11,19 +11,29 @@ _MP_STREAM_POLL = micropython.const(3)
 _MP_STREAM_POLL_RD = micropython.const(0x0001)
 
 # TODO: Remove this when STM32 gets machine.Timer.
-if hasattr(machine, "Timer"):
+try:
     _timer = machine.Timer(-1)
-else:
-    _timer = None
+except:
+    try:
+      _timer = machine.Timer(1)
+    except:
+      _time = None
 
+delay_ms = 15
 
-# Batch writes into 50ms intervals.
+# Batch writes into 15ms intervals.
 def schedule_in(handler, delay_ms):
-    def _wrap(_arg):
-        handler()
+    def _wrap(_arg=None):
+        try:
+            handler()
+        except:
+            pass  # Damit REPL bei Fehlern im write nicht stirbt
 
     if _timer:
-        _timer.init(mode=machine.Timer.ONE_SHOT, period=delay_ms, callback=_wrap)
+        try:
+            _timer.init(mode=machine.Timer.ONE_SHOT, period=delay_ms, callback=_wrap)
+        except:
+            micropython.schedule(_wrap, None)
     else:
         micropython.schedule(_wrap, None)
 
@@ -62,13 +72,13 @@ class BLEUARTStream(io.IOBase):
         self._tx_buf = self._tx_buf[200:]
         self._uart.write(data)
         if self._tx_buf:
-            schedule_in(self._flush, 30)
+            schedule_in(self._flush, delay_ms)
 
     def write(self, buf):
         empty = not self._tx_buf
         self._tx_buf += buf
         if empty:
-            schedule_in(self._flush, 30)
+            schedule_in(self._flush, delay_ms)
 
 
 def start(name="mpy-repl"):

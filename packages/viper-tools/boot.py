@@ -3,11 +3,22 @@
 #esp.osdebug(None)
 #import webrepl
 #webrepl.start()
+import sys
 from arduino_alvik import ArduinoAlvik
 from time import sleep_ms
 
-ALVIK_NAME = "ALVIK24-3"
+def blink(alvik, color_on, color_off, time_ms):
+    alvik.left_led.set_color(*color_on)
+    alvik.right_led.set_color(*color_on)
+    sleep_ms(time_ms)
+    alvik.left_led.set_color(*color_off)
+    alvik.right_led.set_color(*color_off)
+    sleep_ms(time_ms)
+
+ALVIK_NAME = "ALVIK24-03"
 alvik = ArduinoAlvik()
+alvik.begin()
+
 alvik.left_led.set_color(1, 1, 0)  # GELB links
 alvik.right_led.set_color(1, 1, 0) # GELB rechts
 try:
@@ -16,9 +27,6 @@ try:
     import ble_repl
     ble_repl.start(name=ALVIK_NAME)
 except Exception as e:
-    print("Fehler:", e)
-    alvik.left_led.set_color(1, 0, 0) # ROT links
-    alvik.right_led.set_color(1, 0, 0)  # ROT rechts
-sleep_ms(50)  # Alvik braucht Zeit um die LEDs zu setzten
-
-
+    sys.print_exception(e)
+    while True:
+        blink(alvik, (1, 0, 0), (0, 0, 0), 500)
