@@ -40,10 +40,14 @@ def schedule_in(handler, delay_ms):
 
 # Simple buffering stream to support the dupterm requirements.
 class BLEUARTStream(io.IOBase):
+    _callbacks = []
     def __init__(self, uart):
         self._uart = uart
         self._tx_buf = bytearray()
         self._uart.irq(self._on_rx)
+
+        self._callback_buffer = []
+        self._start = False
 
     def _on_rx(self):
         # Needed for ESP32.
@@ -51,14 +55,20 @@ class BLEUARTStream(io.IOBase):
             os.dupterm_notify(None)
 
     def read(self, sz=None):
-        return self._uart.read(sz)
+        msg = self._uart.read(sz)
+        print(f"read: {msg}")
+        for c in BLEUARTStream._callbacks:
+            res = c(msg)
+        return msg
 
     def readinto(self, buf):
         avail = self._uart.read(len(buf))
+        # print(f"readinto: {buf}")
         if not avail:
             return None
         for i in range(len(avail)):
             buf[i] = avail[i]
+            self._call_callbacks(buf[i])
         return len(avail)
 
     def ioctl(self, op, arg):
@@ -80,6 +90,28 @@ class BLEUARTStream(io.IOBase):
         if empty:
             schedule_in(self._flush, delay_ms)
 
+    @staticmethod
+    def register_callback(callback):
+        BLEUARTStream._callbacks.append(callback)
+
+    def _call_callbacks(self, msg):
+      # Callback bei empfangenen Daten
+      c = chr(msg)
+      # print(f"msg: {c}")
+      if self._start == False and c == "$":
+        self._start = True
+        # print("start")
+        self._callback_buffer = []
+      elif self._start:
+        if c == "$":
+          self._start = False
+          for c in self._callbacks:
+            c("".join(self._callback_buffer))
+          return True
+        else:
+          # print("append")
+          self._callback_buffer.append(c)
+      # print(f"buffer: {self._callback_buffer}")
 
 def start(name="mpy-repl"):
     ble = bluetooth.BLE()
