@@ -20,6 +20,7 @@ def bewegung(cmd):
 
 # Roboter starten
 alvik = ArduinoAlvik()
+alvik.begin()
 
 # Bluetooth starten
 BLEUARTStream.register_callback(bewegung)
